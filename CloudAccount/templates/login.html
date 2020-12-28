@@ -1,0 +1,334 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no" />
+  <meta name="description" content="云记账Cloud Accounting是一款用于门店记账、账单统计、报表生成以及门店管理的web移动端应用系统。系统开发宗旨是内容精简、操作便捷，以适应工作繁忙、操作基础有限的门店工作人员及管理者。" />
+  <meta name="keywords" content="记账系统,账单统计,报表,门店账目管理" />
+  <meta name="author" content="彭志华">
+  <meta name="robots" content="nofollow">
+  <title>云记账</title>
+  <!-- Bootstrap, font-awesome CSS -->
+  <link href="https://cdn.staticfile.org/twitter-bootstrap/4.5.0/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.staticfile.org/font-awesome/5.14.0/css/all.min.css" rel="stylesheet" />
+  <!-- favicon图标文件的定义
+  <link href="{{url_for('static', filename='img/logo.svg')}}" rel="shortcut icon" type="image/svg+xml" /> -->
+  <link rel="apple-touch-icon" href="/static/img/apple-touch-icon-114x114.png" />
+  <!-- login.html页面CSS代码块 -->
+  <style>
+    html,
+    body {
+      height: 100%;
+    }
+    body {
+      display: -ms-flexbox;
+      display: flex;
+      -ms-flex-align: center;
+      align-items: center;
+      padding-top: 20px;
+      padding-bottom: 40px;
+      background-color: #f5f5f5;
+    }
+    .form-signin {
+      width: 100%;
+      max-width: 330px;
+      padding: 15px;
+      margin: auto;
+    }
+    .form-signin .checkbox {
+      font-weight: 400;
+    }
+    .form-signin .form-control {
+      position: relative;
+      box-sizing: border-box;
+      height: auto;
+      padding: 10px;
+      font-size: 16px;
+    }
+    .form-signin .form-control:focus {
+      z-index: 2;
+    }
+    .form-signin input[type="tel"] {
+      margin-bottom: -1px;
+      border-bottom-right-radius: 0;
+      border-bottom-left-radius: 0;
+    }
+    .form-signin input[type="password"] {
+      margin-bottom: 10px;
+      border-top-left-radius: 0;
+      border-top-right-radius: 0;
+    }
+    ._logo {
+      font-size: 5.4em;
+      color: #6666ff;
+    }
+  </style>
+  <!--网页链接分享到微信带图标
+  <div id='wx_pic' style='margin:0 auto;display:none;'>
+    <img src="/static/img/logo.svg" />
+  </div>-->
+</head>
+<body class="text-center">
+  <form name="loginform" class="form-signin" role="form" method="post">
+    <i class="fas fa-poll _logo"></i>
+    <h2 class="mb-3">云记账<span class="badge badge-secondary align-top" style="font-size: 30%;">门店版</span></h2>
+    <input name="login_phone" type="tel" class="form-control fa" placeholder=" &#xf3cd; 手机号" autofocus>
+    <input name="login_pwd" type="password" class="form-control fa" placeholder="&#xf084; 密码">
+    <div class="checkbox mb-3"><label><input type="checkbox" name="login_remember" value="True"> 记住我，一个月内免登陆</label></div>
+    <button class="btn btn-lg btn-primary btn-block " type="button" id="submit"><i class="fas fa-sign-in-alt"></i> 登陆系统</button>
+    <div class="row mt-2">
+      <div class="col-6 text-left"><a href="#" data-toggle="modal" data-target="#regform">注册账号</a></div>
+      <div class="col-6 text-right"><a href="#" data-toggle="modal" data-target="#resetpwdform">忘记密码？</a></div>
+    </div>
+    <p class="mt-5 mb-3 text-muted small">
+      <span>Developed by 彭志华 | </span>
+      <span><a href="/manual"><i class="fas fa-book"></i>使用手册</a></span>
+      <span style="display:none"><a href="http://beian.miit.gov.cn/" target="_blank">粤ICP备20040358号</a></span>
+    </p>
+    <!--
+    <div title="TrustAsia 安全签章" id="myssl_seal" onclick="window.open('https://seal.trustasia.com/seal/detail?domain=perfei.com','TrustAsia 安全签章','height=800,width=470,top=0,right=0,toolbar=no,menubar=no,scrollbars=no,resizable=no,location=no,status=no')" style="text-align: center"><img src="https://sealres.trustasia.com/seal/img/1x/seal.svg?domain=perfei.com" alt="TrustAsia 安全签章" style="width: 130px;height: auto; cursor: pointer"></div>
+    -->
+  <div class="modal fade" id="regform" data-backdrop="static" data-keyboard="false" tabindex="-3" role="dialog">
+    <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="staticBackdropLabel">注册账号</h5>
+          <button type="button" class="close" data-dismiss="modal">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form name="regform">
+            <label class="input-group mb-3">
+              <div class="input-group-prepend">
+                  <span class="input-group-text">手机号码</span>
+              </div>
+              <input type="tel" class="form-control" name="reg_phone">
+            </label>
+            <label class="input-group mb-3">
+                <div class="input-group-prepend">
+                    <span class="input-group-text">密码</span>
+                </div>
+                <input type="password" class="form-control" name="reg_pwd">
+            </label>
+            <label class="input-group mb-3">
+              <div class="input-group-prepend">
+                  <span class="input-group-text">确认密码</span>
+              </div>
+              <input type="password" class="form-control" name="reg_pwd2">
+            </label>
+            <label class="input-group mb-3">
+                <div class="input-group-prepend">
+                    <span class="input-group-text">姓名</span>
+                </div>
+                <input type="text" class="form-control" name="reg_name">
+            </label>
+            <label class="input-group mb-3">
+                <div class="input-group-prepend">
+                    <span class="input-group-text">邮箱</span>
+                </div>
+                <input type="email" class="form-control" name="reg_mail">
+              </label>
+              <p class="text-muted small">邮箱可以接收账单及找回密码</p>
+            </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-success" id="regsubmit">提交注册</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- resetpwdForm Modal -->
+  <div class="modal fade" id="resetpwdform" data-backdrop="static" data-keyboard="false" tabindex="-2" role="dialog">
+    <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="staticBackdropLabel">重置密码</h5>
+          <button type="button" class="close" data-dismiss="modal">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form name="resetpwdform">
+            <p style="text-align: left;">选择找回密码的方式：</p>
+            <label class="input-group">
+              <select class="form-control" name="resetpwd_chk">
+                <option value="mail">邮箱找回</option>
+                <option value="phone">手机号码找回</option>
+              </select>
+              <input type="text" class="form-control" name="resetpwd_text">
+            </label>
+            <small style="text-align: left;color:gray;">请填写注册账号时的邮箱或手机号，系统将发送一个新密码到你的邮箱或手机</small>
+          </form>
+      </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-success" id="resetpwdsubmit">提交申请</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- msgModal 模态框 -->
+  <div class="modal fade" id="msgModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-dialog-centered modal-sm"><div class="modal-content">
+      <div class="modal-header bg-warning text-white"><h5 class="modal-title" id="exampleModalLabel"><i class="fas fa-exclamation-triangle"></i> 提示</h5><button type="button" class="close" data-dismiss="modal">&times;</button></div>
+      <div class="modal-body"></div><!-- 传递数据给 #login_msg 更新模态框显示内容 -->
+      <div class="modal-footer"><button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button></div>
+    </div></div>
+  </div>
+  <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+  <script src="https://cdn.staticfile.org/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://cdn.staticfile.org/twitter-bootstrap/4.5.0/js/bootstrap.min.js"></script>
+  <!-- login.html页面JS代码块 -->
+  <script type="text/javascript">
+    // 用户登陆ajax模块
+    $(function(){
+      $("#submit").click(function(){
+        if (!checkForm()){return;}
+        data = $('form[name=loginform]').serialize();
+        $.ajax({
+          url: '/login',
+          type: 'POST',
+          data: data,
+          dataType: "json",
+          success: function(result){
+            var res = result.toString();
+            if (res.substr(0,1) == '1'){ //登陆验证成功，有门店跳转到主页
+              window.location.replace("/");
+            }
+            else if (res.substr(0,1) == '2'){ //登陆验证成功，无门店跳转到shop门店设置页
+              window.location.replace("/shop");
+            }
+            else {
+              showModel(res);
+            }
+          },
+          error: function(result){
+            showModel('error: '+JSON.stringify(result));
+          }
+        });
+      });
+    });
+    // 重置密码ajax模块
+    $(function(){
+      $("#resetpwdsubmit").click(function(){
+        data = $('form[name=resetpwdform]').serialize();
+        if (!checkresetpwdForm()){ return; }
+        $.ajax({
+          url: '/resetpwd',
+          type: 'POST',
+          data: data,
+          dataType: 'json',
+          success: function(result){
+            var res = result.toString();
+            if (res.substr(0,1) == '1'){ //找回密码的申请 验证成功
+              $('#resetpwdform .modal-body').html('<h4 style="text-align: left;color:gray;">重置密码申请成功！<br>新的密码即将发送到您的邮箱或手机上，请稍后查看。<br><small>系统可能有3-5分钟的延迟。</small></h4>')
+              $('#resetpwdform .modal-footer').html('<button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>')
+            }
+            else {
+              showModel(res);
+            }
+          },
+          error: function(result){
+            showModel('error: '+JSON.stringify(result));
+          }
+        });
+      });
+    });
+    // 用户注册ajax模块
+    $(function(){
+      $("#regsubmit").click(function(){
+        if (!checkregForm()){return;}
+        data = $('form[name=regform]').serialize();
+        $.ajax({
+          url: '/reg',
+          type: 'POST',
+          data: data,
+          dataType: 'json',
+          success: function(result){
+            var res = result.toString();
+            if (res.substr(0,1) == '2'){ //注册成功,跳转到shops门店页面
+              window.location.replace("/shop");
+            }
+            else {
+              showModel(res);
+            }
+          },
+          error: function(result){
+            showModel('error: '+JSON.stringify(result));
+          }
+        });
+      });
+    });
+    //用户登陆内容验证模块
+    function checkForm(){
+      if (!checkPhone(document.forms["loginform"]["login_phone"].value)){ return false; }
+      if (!checkPwd(document.forms["loginform"]["login_pwd"].value)){ return false; }
+      return true;
+    }
+    //用户注册内容验证模块
+    function checkregForm(){
+      if (!checkPhone(document.forms["regform"]["reg_phone"].value)){ return false; }
+      if (!checkPwd(document.forms["regform"]["reg_pwd"].value)){ return false; }
+      if (!checkPwd2(document.forms["regform"]["reg_pwd"].value,document.forms["regform"]["reg_pwd2"].value)){ return false; }
+      if (!checkName(document.forms["regform"]["reg_name"].value)){ return false; }
+      if (!checkMail(document.forms["regform"]["reg_mail"].value)){ return false; }
+      return true;
+    }
+    //重置密码内容验证模块
+    function checkresetpwdForm() {
+      if ($('form[name=resetpwdform] option:selected').val() == "mail"){
+        if (!checkMail(document.forms["resetpwdform"]["resetpwd_text"].value)){ return false; }
+      }
+      else {
+        if (!checkPhone(document.forms["resetpwdform"]["resetpwd_text"].value)){ return false; }
+      }
+      return true;
+    }
+    //文本正则验证模块群
+    function checkPhone(str){
+      var pattern = /^[1][3,4,5,6,7,8][0-9]{9}$/;  //手机号码格式正则表达式验证
+      if(!(pattern.test(str) || str == '1010')){
+        showModel("请输入正确手机号码");
+        return false;
+      }
+      else{ return true; }
+    }
+    function checkPwd(str){
+      var pattern = /^[a-zA-Z0-9_.]{4,32}$/; //密码正则表达式验证
+      if(!pattern.test(str)){
+        showModel("请输入5-32位英文字母或数字的密码");
+        return false;
+      }
+      else{ return true; }
+    }
+    function checkPwd2(str,str2){
+      if (str!=str2){
+        showModel("确认密码与密码不一致");
+        return false;
+      }
+      else{ return true; }
+    }
+    function checkName(str){
+      var pattern = /^[\u4e00-\u9fa5]{2,4}$/;
+      if(!pattern.test(str)){
+        showModel("姓名请输入2-4个中文汉字");
+        return false;
+      }
+      else{ return true; }
+    }
+    function checkMail(str){
+      var pattern = /^(([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5}){1,25})$/; //邮箱地址正则表达式验证 
+      if(!pattern.test(str)){
+        showModel("请输入正确的邮箱地址，格式为：xx@xx.xx");
+        return false;
+      }
+      else{ return true; }
+    }
+    // 调用msgModal模态框
+    function showModel($msg){
+      $('#msgModal .modal-body').text($msg);
+      $('#msgModal').modal('show');
+    }
+  </script>
+</body>
+</html>

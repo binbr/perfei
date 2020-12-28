@@ -1,0 +1,29 @@
+# coding:utf-8
+
+# 系统配置参数，调试用
+DEBUG = True
+HOST = '127.0.0.1'
+PORT = '5001'
+# CSRF_ENABLED 配置是为了激活 跨站点请求伪造 保护。
+CSRF_ENABLED = True
+# SECRET_KEY 配置仅仅当 CSRF 激活的时候才需要，它是用来建立一个加密的令牌，用于验证一个表单。
+SECRET_KEY = '0x0x0x0x0x0x0x0x0x0x0x0x0x0x0x0x'
+
+# APP配置参数
+SERVER_NAME = 'yourdomain.com'
+SESSION_COOKIE_DOMAIN = 'yourdomain.com'
+
+# Mysql数据库连接参数
+DB_CONFIG = {
+    'user': 'username',
+    'password': 'password',
+    'database': 'database',
+    'charset': 'utf8',
+    #'unix_socket': '/tmp/mysql.sock',
+}
+
+# sendmail()函数SMTP邮箱连接参数
+MAIL_SENDER = 'yourmail@domain.com'    # 发件人邮箱账号
+MAIL_PWD = 'mailpassword'             # 发件人邮箱密码
+MAIL_SMTP = 'smtp.domain.com'  # 邮件SMTP服务器地址，要求支持SSL
+MAIL_PORT = '465'  # SSL端口

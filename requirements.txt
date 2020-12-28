@@ -1,0 +1,6 @@
+Flask>=1.1.2
+gevent>=20.6.2
+gevent-websocket>=0.10.1
+gunicorn>=20.0.4
+mysql-connector-python>=8.0.21
+mysql-connector-python>=8.0.21

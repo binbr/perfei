@@ -1,0 +1,416 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=320, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no">
+<title>Piggy-bank</title>
+<link href="/static/piggy-bank/img/favicon.ico" rel="shortcut icon" type="image/x-icon" />
+<link rel="apple-touch-icon" href="/static/piggy-bank/img/apple-touch-icon-144x144.png" /> 
+<link href="https://cdn.staticfile.org/twitter-bootstrap/4.5.0/css/bootstrap.min.css" rel="stylesheet" />
+<style>
+main {
+    min-width: 320px;
+    padding-top: 1.2em;
+    padding-bottom: 1.2em;
+    background: url("{{'/static/piggy-bank/img/%s.jpg' % user.bgimg }}");
+    background-repeat: no-repeat;
+    background-size: 100%;
+    background-attachment: fixed;
+}
+._user {
+    width: 320px;
+    margin: 0em 0em 0em 0em;
+    background: -moz-linear-gradient(top,  rgba(245, 202, 10,0.6) 0%,rgba(255,255,255,0.8) 20%);
+    background: -webkit-linear-gradient(top,  rgba(245, 202, 10,0.6) 0%,rgba(255,255,255,0.8) 20%);
+    background: -ms-linear-gradient(top,  rgba(245, 202, 10,0.6) 0%,rgba(255,255,255,0.8) 20%);
+    background: linear-gradient(to bottom,  rgba(245, 202, 10,0.6) 0%,rgba(255,255,255,0.8) 20%);
+}
+svg {
+    padding-top: -0.2em;
+    margin-bottom: 0.2em;
+}
+._list {
+    overflow: hidden;
+    margin-top: .2rem;
+    border-top:1px solid #ddd;}
+._list li {
+    overflow: hidden;
+    width: 135%;
+    list-style: none;
+    border-bottom:1px solid #ddd;
+    padding-left: 10px;
+}
+._list li, ._grouper {
+    display: block;
+    height: 4.2em;
+    line-height: 4.2em;
+    -webkit-transition: all 0.3s linear;
+    transition: all 0.3s linear;
+}
+._list li i {
+    float: right;
+    width: 25%;
+    text-align: center;
+    background: #E2421B;
+    color: #fff;
+    font-style: normal;
+}
+.swipeleft {
+    transform: translateX(-25%);
+    -webkit-transform: translateX(-25%);
+}
+.reload {
+    display:none;
+}
+</style>
+</head>
+<body>
+<div class="reload">下拉刷新……</div>
+{%- for message in get_flashed_messages() -%}
+<!-- alert 消息提示框 -->
+<div class="alert alert-success alert-dismissible fixed-top" id="alert">
+    <button type="button" class="close" data-dismiss="alert">&times;</button>
+    <span class="font-weight-bold">{{ message }}</span>
+</div>
+<script>setTimeout(function(){document.getElementById("alert").style.display="none";},5000);</script>
+{%- endfor -%}
+<!-- 用户基本信息 user -->
+<main class="d-flex justify-content-center">
+    <div class="card _user">
+        <div class="card-body">
+            <div class="card-title row h5">
+                <span class="col-10">你好，{{ user.name }}！</span>
+                <span class="col-2" onclick="msgModal_show('没有需要设置的项目！');">
+                    <svg width="1em" height="1em" viewBox="0 0 16 16" fill="gray-dark" xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" d="M8.837 1.626c-.246-.835-1.428-.835-1.674 0l-.094.319A1.873 1.873 0 0 1 4.377 3.06l-.292-.16c-.764-.415-1.6.42-1.184 1.185l.159.292a1.873 1.873 0 0 1-1.115 2.692l-.319.094c-.835.246-.835 1.428 0 1.674l.319.094a1.873 1.873 0 0 1 1.115 2.693l-.16.291c-.415.764.42 1.6 1.185 1.184l.292-.159a1.873 1.873 0 0 1 2.692 1.116l.094.318c.246.835 1.428.835 1.674 0l.094-.319a1.873 1.873 0 0 1 2.693-1.115l.291.16c.764.415 1.6-.42 1.184-1.185l-.159-.291a1.873 1.873 0 0 1 1.116-2.693l.318-.094c.835-.246.835-1.428 0-1.674l-.319-.094a1.873 1.873 0 0 1-1.115-2.692l.16-.292c.415-.764-.42-1.6-1.185-1.184l-.291.159A1.873 1.873 0 0 1 8.93 1.945l-.094-.319zm-2.633-.283c.527-1.79 3.065-1.79 3.592 0l.094.319a.873.873 0 0 0 1.255.52l.292-.16c1.64-.892 3.434.901 2.54 2.541l-.159.292a.873.873 0 0 0 .52 1.255l.319.094c1.79.527 1.79 3.065 0 3.592l-.319.094a.873.873 0 0 0-.52 1.255l.16.292c.893 1.64-.902 3.434-2.541 2.54l-.292-.159a.873.873 0 0 0-1.255.52l-.094.319c-.527 1.79-3.065 1.79-3.592 0l-.094-.319a.873.873 0 0 0-1.255-.52l-.292.16c-1.64.893-3.433-.902-2.54-2.541l.159-.292a.873.873 0 0 0-.52-1.255l-.319-.094c-1.79-.527-1.79-3.065 0-3.592l.319-.094a.873.873 0 0 0 .52-1.255l-.16-.292c-.892-1.64.902-3.433 2.541-2.54l.292.159a.873.873 0 0 0 1.255-.52l.094-.319z"/>
+                        <path fill-rule="evenodd" d="M8 5.754a2.246 2.246 0 1 0 0 4.492 2.246 2.246 0 0 0 0-4.492zM4.754 8a3.246 3.246 0 1 1 6.492 0 3.246 3.246 0 0 1-6.492 0z"/>
+                    </svg>
+                </span>
+            </div>
+            <hr>
+            <div class="pb-1">
+                <div class="text-secondary">总资产(元)</div>
+                <div class="h2 font-weight-bold">{{ user.cash_balance + user.finance_balance }}</div>
+            </div>
+            <div class="row pb-2">
+                <div class="col-6">
+                    <div class="text-secondary">零花钱</div>
+                    <div class="h4 font-weight-bold">{{ user.cash_balance }}</div>
+                </div>
+                <div class="col-6">
+                    <div class="text-secondary">理财存折
+                        <svg width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg" data-toggle="tooltip" data-html="true" data-placement="top" 
+                            title="{{'<b>本金：%.2f元</b><br>每日收益：%.2f' % (user.finance, user.finance * user.rate)}}元">
+                            <path fill-rule="evenodd" d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM5.496 6.033a.237.237 0 0 1-.24-.247C5.35 4.091 6.737 3.5 8.005 3.5c1.396 0 2.672.73 2.672 2.24 0 1.08-.635 1.594-1.244 2.057-.737.559-1.01.768-1.01 1.486v.105a.25.25 0 0 1-.25.25h-.81a.25.25 0 0 1-.25-.246l-.004-.217c-.038-.927.495-1.498 1.168-1.987.59-.444.965-.736.965-1.371 0-.825-.628-1.168-1.314-1.168-.803 0-1.253.478-1.342 1.134-.018.137-.128.25-.266.25h-.825zm2.325 6.443c-.584 0-1.009-.394-1.009-.927 0-.552.425-.94 1.01-.94.609 0 1.028.388 1.028.94 0 .533-.42.927-1.029.927z"/>
+                        </svg>
+                    </div>
+                    <div class="h4 font-weight-bold">{{ user.finance_balance }}</div>
+                </div>
+            </div>
+            <div class="btn-group btn-group w-100">
+                <button type="button" class="btn btn-outline-danger" onclick="sform_show('存入一笔','存入金额：','income');">存 钱</button>
+                <button type="button" class="btn btn-outline-success" onclick="sform_show('花费一单','花费金额：','outgo');">花 费</button>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- 明细 list -->
+<div id="accordion">
+    {%- for l in tly|groupby(0)|sort(reverse=true, attribute=0) -%}
+    <div class="_list">
+        <div class="_grouper" style="background-color: rgba(202, 202, 202, 0.6);" data-toggle="collapse" href="#collapse{{ l.grouper }}">
+            <span>{{ l.grouper }}</span>
+            <span class="text-right">小结：{{ l[1]|sum(4) }}</span>
+        </div>
+        <div id="collapse{{ l.grouper }}" class="collapse {{ 'show' if loop.first }}" data-parent="#accordion">
+        {% for date, day, time, detail, amount in l.list|sort(reverse=true, attribute=1) %}
+            <li>
+                <div style="display:inline-block;">
+                    <div style="width: 160px; display:inline;">{{ day }}<span class="text-secondary small">{{ time }}</span></div>
+                    <div style="min-width: 40%;display:inline;">{{ detail }}</div>
+                    <span style="width: 30%;display:inline;" class="text-right font-weight-bold text-{{ 'success' if amount < 0 else 'danger' }}">{{ amount }}</span>
+                </div>
+                <i>删除</i>
+            </li>
+        {%- endfor -%}
+        </div>
+    </div>
+    {%- else -%}
+        <div>什么都没有哦！</div>
+    {%- endfor -%}
+</div>
+<!-- sformModal 对话框 -->
+<div class="modal fade" id="sformModal" data-backdrop="static" data-keyboard="false" tabindex="-2">
+    <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered">
+        <div class="modal-content" style="max-width: 320px;">
+        <div class="modal-header">
+            <h5 class="modal-title" id="staticBackdropLabel"></h5>
+            <button type="button" class="close" data-dismiss="modal">
+            <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body">
+            <!-- sform 表单 -->
+            <form id="sform">
+                <div class="form-group">
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text">摘要:</span>
+                        </div>
+                        <input name="details" type="text" class="form-control">
+                    </div>
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text _label">花费金额:</span>
+                        </div>
+                        <input name="" type="number" class="form-control">
+                        <div class="input-group-append">
+                            <span class="input-group-text">元</span>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-primary" onclick="this.disabled=true;sform_submit(this);"> 提 交</button>
+        </div>
+        </div>
+    </div>
+</div>
+<!-- msgModal 模态提示框 -->
+<div class="modal fade" id="msgModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-dialog-centered modal-sm"><div class="modal-content">
+        <div class="modal-header bg-warning text-white">提示<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body"></div>
+        <div class="modal-footer"><button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button></div>
+    </div></div>
+</div>
+
+<!-- jQuery first, then Popper.js, then Bootstrap JS-->
+<script src="https://cdn.staticfile.org/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://cdn.staticfile.org/twitter-bootstrap/4.5.0/js/bootstrap.min.js"></script>
+<script src="https://cdn.staticfile.org/twitter-bootstrap/4.5.0/js/bootstrap.bundle.min.js"></script>
+<script language="javascript">
+// 判断input输入框，纠正错误输入
+$(':input[type="number"]').on('keyup blur change', function() {
+    var val = this.value;
+    //验证是否为正负两位小数，不符合则自动纠正输入
+    if ( !(/^[-+]?(\d+)(\.\d{1,2})?$/g).test(val) ) {
+        //删除非(数字+-.);
+        val = val.replace(/[^\d\.+-]/g, '');
+        //纠正错误的数字格式
+        val = val.replace(/.*?([+-]?)(\d+)?(\.\d{0,2})?.*/, function(a, b, c, d) {
+            return b + ( c || ( d && '0' ) || '' ) + ( d || '' );
+        });
+        this.value = val;
+    };
+});
+// 表单提交 sform_submit
+function sform_submit(obj) {
+    // 延迟3秒后移除按钮的禁用标签
+    setTimeout(function () {
+        $(obj).removeAttr("disabled");
+    },2000);
+    // 表单验证
+    txt = $(':input[name="details"]').val();
+    if (txt == '') {
+        msgModal_show('摘要里写点什么吧？')
+        return;
+    }
+    if ( !txt_verify('Chinese', txt) ) {
+        msgModal_show('摘要别乱写哦！');
+        return;
+    };
+    txt = $(':input[type="number"]').val();
+    if ( txt == '' || Number(txt) <= 0 ) {
+        msgModal_show('金额没有写吗？');
+        return;
+    }
+    if ( !txt_verify('Amount', txt) ) {
+        msgModal_show('金额写错了哦！');
+        return;
+    };
+    if ( Number(txt) > 999 ) {
+        msgModal_show('金额太大啦！别超过900');
+        return;
+    }
+    // 获取sform表单数据
+    data = $('#sform').serializeArray(); 
+    console.log(data); //调试用
+    // Ajax POST 提交表单
+    $.ajax({
+        type: 'POST',
+        data: data,
+        dataType: 'json',
+        success: function(result){
+            if (result.status == 1) {
+                // 返回1刷新页面
+                window.location.replace('');
+            }
+            else {
+                // 自定义错误信息
+                msgModal_show(result.message);
+            }
+        },
+        error: function(result){
+            // 系统错误信息
+            msgModal_show('error: '+JSON.stringify(result));
+        }
+    });
+}
+// 更新 sform 表单元素，并显示 sformModal 对话框
+function sform_show(title, label, name) {
+    $('#sformModal .modal-title').text(title); //更新内容
+    $('._label').text(label);
+    $(':input[type="number"]').attr("name", name);
+    $('#sformModal').modal('show'); //显示 sformModal 对话框
+}
+// 调用 msgModal 模态框,$msg参数是显示的内容
+function msgModal_show($msg){
+    $('#msgModal .modal-body').html($msg);
+    $('#msgModal').modal('show');
+}
+// 调用 tootip 提示框
+$(function () {
+    $('[data-toggle="tooltip"]').tooltip()
+})
+// 文本验证
+function txt_verify(type, str) {
+    var result = false;
+    var pattern;
+    switch (type) {
+        case 'Chinese':
+            pattern = /^[a-zA-Z0-9-\u4e00-\u9fa5]{1,6}$/;
+            break;
+        case 'Amount':
+            pattern = /^([0-9]{0,5})+(.[0-9]{0,2})?$/g; 
+            break;
+    }
+    if (pattern.test(str)) {
+        result = true;
+    }
+    return result;
+}
+// 下滑刷新页面
+$(function() {
+    // 定义拖动对象
+    var outerScroller = document.querySelector('.card');
+    var startX = startY = moveX = moveY = 0;
+    // 定义触摸开始事件
+    outerScroller.addEventListener('touchstart', function(event) {
+        var touch = event.targetTouches[0];
+        // 获取按下时的坐标
+        startY = touch.pageY;
+    }, false);
+    // 定义手指移动事件 记录移动位置
+    outerScroller.addEventListener('touchmove', function(event) {
+        var touch = event.targetTouches[0];
+        // 获取移动时的坐标，并设值元素坐标值
+        // 移动量 = 当前坐标 - 开始坐标
+        moveY = touch.pageY - startY;
+        // 如果移动量在0-200之间（往下滑），则设置元素top坐标为移动量的值
+        if (moveY >=0 && moveY <= 200) {
+            outerScroller.style.top = moveY + 'px';
+            // 显示 页面刷新提示层
+            $('.reload').css('display','block');
+        }
+    }, false);
+    // 定义手指松开事件 刷新或回弹
+    outerScroller.addEventListener('touchend', function(event) {
+        // 当移动量达到180时，刷新页面
+        if (moveY > 180) {
+            window.location.reload();// 执行页面刷
+        };
+        outerScroller.style.top = 0 + 'px';
+        // 隐藏 页面刷新提示层
+        $('.reload').css('display','none');
+    }, false);
+})
+//侧滑显示删除按钮
+var expansion = null; //是否存在展开的list
+var container = document.querySelectorAll('._list li');
+for(var i = 0; i < container.length; i++){    
+    var x, y, X, Y, swipeX, swipeY;
+    container[i].addEventListener('touchstart', function(event) {
+        x = event.changedTouches[0].pageX;
+        y = event.changedTouches[0].pageY;
+        swipeX = true;
+        swipeY = true ;
+        if(expansion){   //判断是否展开，如果展开则收起
+            expansion.className = "";
+        }        
+    });
+    container[i].addEventListener('touchmove', function(event){
+        
+        X = event.changedTouches[0].pageX;
+        Y = event.changedTouches[0].pageY;        
+        // 左右滑动
+        if(swipeX && Math.abs(X - x) - Math.abs(Y - y) > 0){
+            // 阻止事件冒泡
+            event.stopPropagation();
+            if(X - x > 80){   //右滑
+                event.preventDefault();
+                this.className = "";    //右滑收起
+            }
+            if(x - X > 50){   //左滑
+                event.preventDefault();
+                this.className = "swipeleft";   //左滑展开
+                expansion = this;
+            }
+            swipeY = false;
+        }
+        // 上下滑动
+        if(swipeY && Math.abs(X - x) - Math.abs(Y - y) < 0) {
+            swipeX = false;
+        }        
+    });
+}
+</script>
+<script src="/static/piggy-bank/live2d-widget/L2Dwidget.min.js"></script>
+<script type="text/javascript">
+L2Dwidget.init({
+    "model": {
+        jsonPath: '/static/piggy-bank/live2d-widget-models/shizuku/assets/shizuku.model.json',
+        scale: 1,
+    },
+    display: {
+        superSample: 2,
+        width: 200,
+        height: 400,
+        position: 'right',
+        hOffset: 0,
+        vOffset: -48,
+    },
+    mobile: {
+        show: true,
+        scale: 0.8,
+        motion: true,
+    },
+    name: {
+        canvas: 'live2dcanvas',
+        div: 'live2d-widget',
+    },
+    react: {
+        opacity: 1,
+    },
+    dev: {
+        border: false
+    },
+    dialog: {
+        "enable": true,
+        "script": {
+            //每20s，显示一言（调用一言Api返回的句子）
+            //'every idle 24s': '$hitokoto$',
+            //触摸到class='star'对象
+            'hover .btn': '你又要花钱了吗？',
+            //触摸到身体
+            //'tap body': '害羞⁄(⁄ ⁄•⁄ω⁄•⁄ ⁄)⁄',
+            //触摸到头部
+            //'tap face': '~~'
+        }
+    }
+});
+</script>
+</body>
+</html>

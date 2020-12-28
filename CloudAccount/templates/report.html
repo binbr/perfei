@@ -1,0 +1,306 @@
+{#<!--
+    内容模板文件 report.html
+    继承主模板自 _base.html
+-->#}
+{% extends "_base.html" %}
+{% block content %}
+<div class="row">
+    <div class="col-4">
+        <select class="form-control" id="DatePick">
+            <option value="day" selected>日</option>
+            <option value="week">周</option>
+            <option value="month">月</option>
+          <option value="year">年</option>
+        </select>
+    </div>
+    <div class="col-8 row">
+        <div class="btn-group w-100">
+            <button type="button" class="btn btn-secondary fas fa-chevron-left"></button>
+            <button type="button" class="btn btn-secondary" disabled>2020年50周</button>
+            <button type="button" class="btn btn-secondary fas fa-chevron-right"></button>
+          </div>
+        </div>
+</div>
+<hr>
+<div class="h5 text-center">收入统计曲线图</div>
+<div id="mychart1" style="width: 100%;height:300px;"></div>
+<hr>
+<div class="h5 text-center">支出比例分析</div>
+<div id="mychart2" style="width: 100%;height:300px;"></div>
+<hr>
+<div class="h5 text-center">收支及利润分析图</div>
+<div id="mychart3" style="width: 100%;height:300px;"></div>
+{% endblock %}
+{% block jscode %}
+<script src="https://cdn.staticfile.org/echarts/5.0.0/echarts.min.js"></script>
+<!--https://cdn.staticfile.org/echarts/5.0.0/echarts.simple.min.js-->
+<script>
+// 基于准备好的dom，初始化echarts实例
+var myChart1 = echarts.init(document.getElementById('mychart1'), null, {renderer: 'svg'});
+var myChart2 = echarts.init(document.getElementById('mychart2'), null, {renderer: 'svg'});
+var myChart3 = echarts.init(document.getElementById('mychart3'), null, {renderer: 'svg'});
+
+//监听选中事件
+$('#DatePick').change(function(data){
+    //获取选中项的值
+    var value = $("#DatePick option:selected").attr("value");
+    //输出日志
+    console.log(value);
+myChart3.setOption({
+    series: [
+        {
+            type: 'bar',
+        },
+        {
+            type: 'bar',
+        },
+        {
+            type: 'bar',
+        },
+    ],
+    // 数据集
+    dataset:{
+        source: [
+            ['month', '利润', '收入', '支出',],
+            ['2018-1', '543', '2173', '-810',],
+            ['2018-2', '562', '2360', '-790',],
+            ['2018-3', '527', '2971', '-791',],
+            ['2018-4', '533', '2157', '-814',],
+            ['2018-5', '592', '2327', '-806',],
+            ['2018-6', '517', '2553', '-830',],
+            ['2018-7', '575', '2590', '-820',],
+            ['2018-8', '527', '2619', '-826',],
+            ['2018-9', '553', '2118', '-825',],
+        ]
+    },
+});
+myChart1.setOption({
+    // 系列列表
+    series: [
+        {
+            type: 'line',
+            stack: 'Count',
+            areaStyle: {},
+        },
+        {
+            type: 'line',
+            stack: 'Count',
+            areaStyle: {},
+        },
+        {
+            type: 'line',
+            stack: 'Count',
+            areaStyle: {},
+        },
+        {
+            type: 'line',
+            stack: 'Count',
+            areaStyle: {},
+        },
+    ],
+    // 数据集
+    dataset:{
+        source: [
+            ['month', '支付宝', '微信', '现金', '意外来财'],
+            ['2018-1', '543', '2173', '810', '42'],
+            ['2018-2', '562', '2360', '790', '36'],
+            ['2018-3', '527', '2971', '791', '47'],
+            ['2018-4', '533', '2157', '814', '62'],
+            ['2018-5', '592', '2327', '806', '83'],
+            ['2018-6', '517', '2553', '830', '29'],
+            ['2018-7', '575', '2590', '820', '58'],
+            ['2018-8', '527', '2619', '826', '57'],
+            ['2018-9', '553', '2118', '825', '58'],
+            ['2018-10', '573', '2260', '799', '82'],
+            ['2018-11', '569', '2011', '805', '99'],
+            ['2018-12', '570', '2319', '820', '39'],
+            ['2019-1', '543', '2173', '810', '42'],
+            ['2019-2', '562', '2360', '790', '36'],
+            ['2019-3', '527', '2971', '791', '47'],
+            ['2019-4', '533', '2157', '814', '62'],
+            ['2019-5', '592', '2327', '806', '83'],
+            ['2019-6', '517', '2553', '830', '29'],
+            ['2019-7', '575', '2590', '820', '58'],
+            ['2019-8', '527', '2619', '826', '57'],
+            ['2019-9', '553', '2118', '825', '58'],
+            ['2019-10', '573', '2260', '799', '82'],
+            ['2019-11', '569', '2011', '805', '99'],
+            ['2019-12', '570', '2319', '820', '39'],
+            ['2020-1', '543', '2173', '810', '42'],
+            ['2020-2', '562', '2360', '790', '36'],
+            ['2020-3', '527', '2971', '791', '47'],
+            ['2020-4', '533', '2157', '814', '62'],
+            ['2020-5', '592', '2327', '806', '83'],
+            ['2020-6', '517', '2553', '830', '29'],
+            ['2020-7', '575', '2590', '820', '58'],
+        ]
+    },
+})
+myChart2.setOption({
+    series: [
+        {
+            data: [
+                {value: 93373.5, name: '原材料', selected: true},
+                {value: 8938, name: '日常开支'},
+                {value: 52691, name: '其它支出'}
+            ]
+        },
+        {
+            data: [
+                {value: 8560, name: '面粉'},
+                {value: 3832, name: '鸡蛋'},
+                {value: 837.5, name: '酸奶'},
+                {value: 80144, name: '馅料款'},
+                {value: 4188, name: '生活费'},
+                {value: 4750, name: '煤气'},
+                {value: 24900, name: '房租'},
+                {value: 1791, name: '物管水电'},
+                {value: 26000, name: '工资'}
+            ]
+        }
+    ]
+});
+
+});
+
+
+// 指定图表的基本配置项
+myChart1.setOption({
+    // 提示框组件
+    // trigger 触发类型 'item'数据项图形触发,'axis'坐标轴触发,'none'
+    // axisPointer.type 指示器类型 'line'直线指示器,'shadow'阴影指示器,'cross'十字准星指示器,'none'
+    tooltip: {
+        trigger: 'axis',
+        axisPointer: {
+            type: 'line',
+        },
+        backgroundColor: 'rgba(245, 245, 245, 0.8)',
+    },
+    // 图例组件
+    legend: {
+        top: 30,
+        left: 'center',
+        type: 'scroll',
+    },
+    // 工具栏
+    toolbox: {
+        show: true,
+        feature: {
+            magicType: {
+                type: ['line', 'bar']
+            },
+            saveAsImage: {},
+        }
+    },
+    // 直角坐标系内绘图网格
+    grid: {
+        left: '2%',
+        right: '4%',
+        bottom: '3%',
+        containLabel: true,
+    },
+    // 直角坐标系 grid 中的 x 轴
+    // type 可选项 'value'数值轴,'category'类目轴,'time'时间轴,'log'对数轴
+    xAxis: [
+        {
+            position: 'bottom',
+            type: 'category',
+            boundaryGap: false,
+        },
+    ],
+    // 直角坐标系 grid 中的 y 轴
+    yAxis: [
+        {
+            type: 'value'
+        }
+    ],
+});
+// 指定饼图图表的基本配置项
+myChart2.setOption ({
+    tooltip: {
+        trigger: 'item',
+        formatter: '{b}: <br/>{c}元 ({d}%)',
+        backgroundColor: 'rgba(245, 245, 245, 0.8)',
+    },
+    toolbox: {
+        feature: {
+            saveAsImage: {},
+        }
+    },
+    legend: {
+        type: 'scroll',
+        orient: 'vertical',
+        icon: 'circle',
+        left: 1,
+    },
+    series: [
+        {
+            type: 'pie',
+            top: '10%',
+            left: '20%',
+            selectedMode: 'single',
+            radius: [0, '50%'],
+            label: {
+                position: 'inner'
+            },
+            labelLine: {
+                show: true
+            },
+        },
+        {
+            type: 'pie',
+            top: '10%',
+            left: '20%',
+            radius: ['55%', '75%'],
+            label: {
+                position: 'inner'
+            },
+        }
+    ]
+});
+myChart3.setOption ({
+    tooltip: {
+        trigger: 'axis',
+        axisPointer: {            // 坐标轴指示器，坐标轴触发有效
+            type: 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
+        },
+        backgroundColor: 'rgba(245, 245, 245, 0.8)',
+    },
+    legend: {
+        left: '10%',
+    },
+    grid: {
+        left: '3%',
+        right: '4%',
+        bottom: '3%',
+        containLabel: true
+    },
+    // 工具栏
+    toolbox: {
+        show: true,
+        feature: {
+            magicType: {
+                type: ['line', 'bar']
+            },
+            saveAsImage: {},
+        }
+    },
+    yAxis: [
+        {
+            type: 'value'
+        }
+    ],
+    xAxis: [
+        {
+            type: 'category',
+            axisTick: {
+                show: false
+            },
+        }
+    ],
+});
+
+
+
+</script>
+{% endblock %}

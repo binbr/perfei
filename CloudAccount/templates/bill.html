@@ -1,0 +1,68 @@
+{#<!--
+    内容模板文件 bill.html
+    继承主模板自 _base.html
+-->#}
+{% extends "_base.html" %}
+{% block content %}
+<div class="row">
+    <div class="col-4">
+        <select class="form-control" id="Filter" disabled>
+            <option value="day" selected>筛选器</option>
+            <option value="month">月</option>
+            <option value="year">年</option>
+        </select>
+        <input id="DatePick" type="hidden" value="2020,12" />
+    </div>
+    <div class="col-8 row">
+        <div class="btn-group w-100">
+            <button type="button" class="btn btn-secondary fas fa-chevron-left"></button>
+            <button type="button" class="btn btn-secondary">2020年12月</button>
+            <button type="button" class="btn btn-secondary fas fa-chevron-right"></button>
+        </div>
+    </div>
+</div>
+<table class="table table-hover">
+    {%- for month in tly|groupby(0)|sort(reverse=true, attribute=0) -%}
+    <thead class="thead-light h6">
+		<tr>
+			<th colspan="1" width="1" style="vertical-align:top;">{{month.grouper}}</th>
+			<th colspan="4" class="text-right">
+                <span class="badge badge-danger">收{{'{:0,.2f}'.format(month.list|selectattr(4,'>',0)|sum(4)) }}</span>
+                <span class="badge badge-success">支{{'{:0,.2f}'.format(month.list|selectattr(4,'<',0)|sum(4))}}</span>
+                <div class="h4"><span class="badge badge-primary">结余{{'{:0,.2f}'.format(month.list|sum(4))}}</span></div>
+            </th>
+		</tr>
+	</thead>
+	<tbody >
+        {%- for day in month.list|groupby(1)|sort(reverse=true, attribute=1) -%}
+        {%- for a in day.list -%}
+        <tr>
+			<td>{{day.grouper if loop.first}}</td>
+			<td colspan="2">
+                <div class="font-weight-bold">{{a[3]}}</div>
+                <div class="text-secondary small">{{a[2]}}{{' · '+a[5] if a[5]}}{{' · '+a[6] if a[6]}}</div>
+            </td>
+			<td class="text-right {{'text-success' if a[4]<0 else 'text-danger'}} lead">{{a[4]}}</td>
+            <td style="display: none;">修改|删除</td>
+        </tr>
+        {%- endfor -%}
+        {%- endfor -%}
+    </tbody>
+    {%- else -%}<tr><td class="text-muted text-center"><span>空空如也</span></td></tr>
+    {%- endfor -%}
+</table>
+{% endblock %}
+{% block jscode %}
+<script>
+// 获取数据
+function show(){
+    var mydate = new Date();
+    var str = "" + mydate.getFullYear() + "年";
+    str += (mydate.getMonth()+1) + "月";
+    str += mydate.getDate() + "日";
+    return str;
+}
+
+
+</script>
+{% endblock %}

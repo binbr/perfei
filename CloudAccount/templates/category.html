@@ -1,0 +1,165 @@
+{#<!--
+    内容模板文件 category.html
+    继承主模板自 _base.html
+-->#}
+{% extends "_base.html" %}
+{% block content %}
+<table class="table table-hover">
+    <thead class="thead-light h4">
+        <tr>
+            <th colspan="1" width="100%">
+                <i class="fas fa-sitemap"> 分类管理</i>
+            </th>
+            <th>
+                <a href="javascript:show_smenu();" class="badge badge-warning">
+                    <i class="fas fa-tools"></i>
+                </a>
+                <ul class="dropdown-menu dropdown-menu-right" id="smenu" >
+                    {%- for click, icon, caption in [
+                    ('edit', 'pencil-ruler', '修改'),
+                    ('del', 'trash-alt', '删除'),
+                    ] -%}
+                    <li class="dropdown-item" onclick="{{ 'smenu_'+click+'();' }}">
+                        <i class="fas fa-{{ icon }}" ></i> {{ caption }}
+                    </li>
+                    {%- if not loop.last -%}<div class="dropdown-divider"></div>{%- endif -%}
+                    {%- endfor -%}
+                </ul>
+            </th>
+        </tr>
+        <tr><td colspan="2">
+            <ul class="nav nav-pills nav-justified small">
+                <!-- 项目目录导航-->
+                {%- for a in get('item') -%}
+                <li class="nav-item">
+                    {%- if request.args.get('item_id')=='%d' % (a[0]) -%}
+                    <a class="nav-link active">{{a[1]}}</a>
+                    {%- else -%}
+                    <a class="nav-link" href="?item_id={{a[0]}}">{{a[1]}}</a>
+                    {%- endif -%}    
+                </li>
+                {%- endfor -%}
+            </ul>
+        </td></tr>
+    </thead>
+    <tbody>
+        <!-- 分类明细 -->
+        {%- for a in res if a[1]==0 -%}
+        <tr>
+            <td>
+                <label class="font-weight-bold" style="margin-bottom:0rem; width: 100%;" for="radio{{a[0]}}">
+                    {{ a[2] }}
+                </label>
+            </td>
+            <td style="text-align:center;">
+                <input type="radio" name="radio" id="radio{{a[0]}}" value="{{a[0]}}" >
+            </td>
+        </tr>
+        {%- for b in res if b[1]==a[0] -%}
+        <tr>
+            <td>
+                <label style="margin-bottom:0rem; width: 100%; text-indent: 1em;" for="radio{{b[0]}}">
+                    <span class="text-muted">┗━</span> {{ b[2] }}<i class="text-primary {{ '%s' % 'fas fa-star' if b[4] }}"></i>
+                </label>
+            </td>
+            <td style="text-align:center;">
+                <input type="radio" name="radio" id="radio{{b[0]}}" value="{{b[0]}}" >
+            </td>
+        </tr>
+        {%- endfor -%}
+        {%- else -%}<tr><td colspan="2" class="text-muted text-center"><span>没有可用的分类</span></td></tr>
+        {%- endfor -%}
+        <tr><td colspan="2"><a href="javascript:void(0);" onclick="sform_show();"><i class="fas fa-plus"></i> 创建新分类…</a></td></tr>
+    </tbody>
+</table>
+{% endblock %}
+
+{% block sformModal %}
+<!--sform 模态框 sform表单元素-->
+<form name="sform">
+    <input type="hidden" name="exec_type" value="submit"/>
+    <input type="hidden" name="id" value="0"/>
+    <div class="form-group">
+        <label>分类名称:</label>
+        <input type="text" class="form-control w-75" name="name" placeholder="示例：现金、餐费、馅料款">
+    </div>
+    <div class="form-group">
+        <input type="hidden" name="item_id" value="{{ request.args.get('item_id') }}"/>
+        <label>项目类别:</label>
+        <select class="form-control w-75" name="pid">
+            <option data-parent="0" value="0" selected>一级分类</option>
+            {%- for a in res if a[1]==0 -%}
+            <option value="{{a[0]}}">┗━ {{a[2]}}</option>
+            {%- endfor -%}
+        </select>
+    </div>
+    <div class="form-group">
+        <label>关联资金账户:</label>
+        <select class="form-control w-75" name="account_id" id='account_id'>
+            {%- for a in get('acct') -%}
+            <option value="{{a[0]}}">{{a[1]}}</option>
+            {%- endfor -%}
+        </select>
+    </div>
+    <div class="form-check">
+        <label class="form-check-label">
+            <input type="checkbox" name="is_homepage" class="form-check-input" />
+                在首页显示，以便于快捷记账
+        </label>
+    </div>
+</form>
+{% endblock %}
+
+{% block jscode %}
+<!-- category.html js代码 开始-->
+<script type="text/javascript">
+// sform 元素初始化（新建和修改）
+function sform_show(title='创建分类', data=[0, 0, '', 0, 0, null]) {
+    $('#sform .modal-title').text(title); // 修改sform对模态框标题
+    $('#sform input[name="id"]').val(data[0]); // 修改id值
+    $('#sform input[name="name"]').val(data[2]); // 修改name值
+    $('#sform select[name="pid"]').val(data[1]); // 修改pid列表默认选项
+    $('#sform select[name="account_id"]').val(data[5]); // 修改account_id列表默认选项
+    // 修改is_homepage值
+    $('#sform input[name="is_homepage"]').prop('checked', data[4] == 1 && true || false);
+    // 判断分类数据是否记入总账： is_inacct值
+    $('#sform select[name="account_id"]').attr('disabled', data[3] != 1 && true || false);
+    // 显示modal
+    $('#sform').modal('show');
+}
+// smenu_del 删除操作
+function smenu_del() {
+    var data = {
+        "exec_type": "del",
+        "id": $('input[name="radio"]:checked').val(),
+    };
+    // 验证data数据内容
+    if (!data["id"]) {
+        msgModal_show('请选择要删除的分类'); 
+        return false;
+    };
+    // ajax 不使用回调函数
+    ajax_result(data);
+}
+// sform_submit 表单提交
+function sform_submit(obj) {
+    // 延迟3秒后移除按钮的禁用标签
+    setTimeout(function () {
+        obj.disabled = false;
+    },2000);
+    // 获取sform表单内容，并转换为对象
+    data = trans.serialize($('form[name="sform"]').serializeArray());
+    console.log('获取sform表单数据：');
+    console.log(data); //测试：打印data数据
+    // 验证表单内容
+    if (txt_verify('Chinese', data['name']) || data['name'].length > 6) {
+        msgModal_show('分类名称要求6个以内汉字');
+        return;
+    };
+    // ajax 不使用回调函数
+    ajax_result(data);
+}
+
+</script>
+<!-- category.html js代码 结束-->
+{% endblock %}

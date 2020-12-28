@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no">
+<title>云记账</title>
+<!-- Bootstrap CSS-->
+<link href="https://cdn.staticfile.org/twitter-bootstrap/4.5.0/css/bootstrap.min.css" rel="stylesheet" />
+<link href="https://cdn.staticfile.org/font-awesome/5.14.0/css/all.min.css" rel="stylesheet" />
+<!-- favicon图标文件的定义
+<link href="{{url_for('static', filename='img/logo.svg')}}" rel="shortcut icon" type="image/svg+xml" /> -->
+<link rel="apple-touch-icon" href="/static/img/apple-touch-icon-114x114.png" />
+<style>
+.nav-item {
+    white-space:nowrap;
+}
+.container {
+    max-width: 540px;
+    padding-top: 15px;
+    padding-bottom: 15px;
+}
+footer {
+  background-color: #f5f5f5;
+  text-align: center;
+}
+.carousel-inner img {
+    width: 100%;
+    height: 100%;
+}
+.carousel-caption h3,p {
+  text-shadow: gray 1px 0 0, gray 0 1px 0, gray -0.5px 0 0, gray 0 -0.5px 0;
+}
+</style>
+<!--网页链接分享到微信带图标
+<div id='wx_pic' style='margin:0 auto;display:none;'>
+  <img src="/static/img/logo.svg" />
+</div>-->
+</head>
+<body class="d-flex flex-column h-100">
+<!-- navbar -->
+<nav class="navbar navbar-expand navbar-dark bg-dark sticky-top">
+    <i class="navbar-brand fas fa-poll" style="font-size: 2em;"></i>
+    <ul class="navbar-nav navbar-left mr-auto">
+      <li class="nav-item {{ '%s' % 'active' if request.path=='/' }}"><a class="nav-link" href="/"><i class="fas fa-edit"></i> 记账</a></li>
+      <li class="nav-item {{ '%s' % 'active' if request.path=='/bill' }}"><a class="nav-link" href="/bill"><i class="fas fa-list"></i> 查账</a></li>
+      <li class="nav-item {{ '%s' % 'active' if request.path=='/report' }}"><a class="nav-link" href="/report"><i class="fas fa-chart-bar"></i> 报表</a></li>
+    </ul>
+    <ul class="navbar-nav navbar-right">
+      <!-- Dropdown -->
+      <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" data-toggle="dropdown"><i class="fas fa-user-cog"></i></a>
+        <div class="dropdown-menu dropdown-menu-right">
+          {%- for href, icon, caption in [
+            ('shop', 'store', '门店管理'),
+            ('account', 'credit-card', '资金账户'),
+            ('category?item_id=1', 'sitemap', '分类管理'),
+            ('logout', 'sign-out-alt', '退出登陆'),
+            ] -%}
+          <a class="dropdown-item" href="/{{ href }}"><i class="fas fa-{{ icon }}"></i> {{ caption }}</a>
+          {%- if not loop.last -%}<div class="dropdown-divider"></div>{%- endif -%}
+          {%- endfor -%}
+        </div>
+      </li>
+    </ul>
+</nav>
+<header>
+{%- if get('session','shop') -%}
+<!-- 如果 session 中存在变量 shop，显示当前shop -->
+<div class="d-flex justify-content-start bg-secondary text-light">
+  <i class="p-2 fas fa-map-marker-alt"> {{ get('session','shop') }}</i>
+</div>
+{%- endif -%}
+{% for message in get_flashed_messages() -%}
+<!--页头信息提示框 msgbox -->
+<div class="alert alert-danger alert-dismissible fade show fixed-top" id="msgbox">
+  <button type="button" class="close" data-dismiss="alert">&times;</button>
+  <span>{{ message }}</span>
+</div>
+<script>setTimeout(function(){document.getElementById("msgbox").style.display="none";},5000);</script>
+{% endfor -%}
+</header>
+<main role="main" class="container flex-shrink-0">
+<!--继承子页面content块开始-->
+{%- block content -%}
+{%- endblock -%}
+<!--继承子页面content块结束-->
+  <!-- sform Modal -->
+  <div class="modal fade" id="sform" data-backdrop="static" data-keyboard="false" tabindex="-2" role="dialog">
+    <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">创建...</h5>
+          <button type="button" class="close" data-dismiss="modal">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+            <!--继承子页面sformModal块开始-->
+            {%- block sformModal -%}
+            {%- endblock -%}
+            <!--继承子页面sformModal块结束-->
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-success" onclick="this.disabled=true;sform_submit(this);">提交</button>
+        </div>
+    </div>
+    </div>
+  </div>
+  <!-- msgModal 模态提示框 -->
+  <div class="modal fade" id="msgModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-dialog-centered modal-sm"><div class="modal-content">
+      <div class="modal-header bg-warning text-white"><h5 class="modal-title" id="exampleModalLabel"><i class="fas fa-exclamation-triangle"></i> 提示</h5><button type="button" class="close" data-dismiss="modal">&times;</button></div>
+      <div class="modal-body"></div>
+      <div class="modal-footer"><button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button></div>
+    </div></div>
+  </div>
+  <!-- 临时表格，用于存储从服务器端传递过来的数据集 
+  添加res数据集内容到tmp_table表格-->
+  <table id="tmp_table" style="display: none;">
+    {%- for tr in res -%}
+    <tr>
+        {%- for td in tr -%}
+        <td>{{td}}</td>
+        {%- endfor -%}
+    </tr>
+    {%- endfor -%}
+  </table>
+</main>
+<!--页脚AD-->
+<footer class="footer mt-auto">
+  <div id="footer_ad" class="carousel slide" data-ride="carousel">
+    <!-- 指示符 -->
+    <ul class="carousel-indicators">
+      <li data-target="#footer_ad" data-slide-to="0" class="active"></li>
+      <li data-target="#footer_ad" data-slide-to="1"></li>
+      <li data-target="#footer_ad" data-slide-to="2"></li>
+    </ul>
+    <!-- 轮播AD图片 -->
+    <div class="carousel-inner">
+      <div class="carousel-item active">
+        <img src="/static/img/img_fjords_wide.jpg">
+        <div class="carousel-caption">
+          <h3>云记账</h3>
+          <p>门店记账、账单统计报表</p>
+        </div>
+      </div>
+      <div class="carousel-item">
+        <img src="/static/img/img_nature_wide.jpg">
+        <div class="carousel-caption">
+          <h3></h3>
+          <p>操作简捷，适合工作繁忙、操作基础有限的门店工作管理者</p>
+        </div>
+      </div>
+      <div class="carousel-item">
+        <img src="/static/img/img_mountains_wide.jpg">
+        <div class="carousel-caption">
+          <h3></h3>
+          <p>没有记录，就没有发生</p>
+        </div>
+      </div>
+    </div>
+    <!-- 左右切换按钮 -->
+    <a class="carousel-control-prev" href="#footer_ad" data-slide="prev">
+      <span class="carousel-control-prev-icon"></span>
+    </a>
+    <a class="carousel-control-next" href="#footer_ad" data-slide="next">
+      <span class="carousel-control-next-icon"></span>
+    </a>
+  </div>
+</footer>
+<!-- jQuery first, then Popper.js, then Bootstrap JS-->
+<script src="https://cdn.staticfile.org/jquery/3.5.1/jquery.min.js"></script>
+<!--<script src="https://cdn.staticfile.org/popper.js/2.4.4/umd/popper.min.js"></script>-->
+<script src="https://cdn.staticfile.org/twitter-bootstrap/4.5.0/js/bootstrap.min.js"></script>
+<script type="text/javascript">
+// 将form表单序列化serializeArray()转换成一个对象object
+// 返回值：一个对象object
+var trans={
+    serialize:function(obj) {
+        var o ={};
+        $.each(obj,function() {
+            if (o[this.name]) {
+                if (!o[this.name].push) {
+                    o[this.name]=[o[this.name]];
+                }
+                o[this.name].push(this.value||"");
+            } else {
+                o[this.name] = this.value || "";
+            }
+        });
+        return o;
+    }
+};
+// smenu_edit 修改操作：获取的数据
+// 调用sform modal框并传递数据到sform_show函数
+function smenu_edit(title = '选项') {
+    // 获取选项的id
+    var id = $('input[name="radio"]:checked').val();
+    if (!id) {
+        msgModal_show('请先选择' + title); 
+        return;
+    };
+    var table = document.getElementById('tmp_table');
+    var data = [];
+    for (var i=0,rows=table.rows.length; i<rows; i++) {
+        if (id == table.rows[i].cells[0].innerHTML) {
+            for(var j=0,cells=table.rows[i].cells.length; j<cells; j++){
+                data[j] = table.rows[i].cells[j].innerHTML;
+            }
+        }
+    }
+    console.log(data);
+    sform_show('修改' + title + '内容', data); 
+}
+// ajax_result Ajax 提交表单POST请求
+// callback 回调获取数据
+function ajax_result(data, callback) {
+    // ajax数据提交
+    $.ajax({
+        type: 'POST',
+        data: data,
+        dataType: 'json',
+        success: function(result) {
+            switch (result.status) {
+                case 1: //值=1 操作成功，用callback回调函数 返回数据库查询 result.res
+                    callback(result.res); // 回调
+                    break;
+                case 2: //值=2 操作成功，刷新页面
+                    window.location.reload();
+                    //window.location.replace(url) //跳转页面
+                    break;
+                case 0: //值=0 返回错误，msgModal_show显示错误信息 result.message
+                    console.log(result.message); //测试
+                    msgModal_show(result.message);
+                    break;
+            };
+        },
+        error: function(result) {
+            msgModal_show('错误: '+JSON.stringify(result)); //发生错误时，返回错误
+        }
+    });
+}
+// txt_verify 文本验证公共函数
+// 返回值：匹配不成功=true, 成功=false
+function txt_verify(type, str) {
+    var result = false;
+    switch (type) {
+        case 'Chinese': // 匹配包含至少一个中文字符
+            var pattern = /^[\u4e00-\u9fa5]+$/;
+            break;
+        case 'Double_byte': // 匹配包含至少一个双字节字符(包括汉字在内)
+            var pattern = /^[^\x00-\xff]+$/;
+            break;
+        case 'Address': //匹配中文地址（限32字）
+            var pattern = /^[a-zA-Z0-9-\u4e00-\u9fa5]{2,32}$/;
+            break;
+        case 'Number':
+            var pattern = /^\d+(\.\d+)?$/;
+            break;
+        case 'Amount': //匹配5位整数及2位小数
+            var pattern = /^([1-9][0-9]*)+(.[0-9]{0,2})?$/g; 
+            break;
+    }
+    if (!pattern.test(str)) {
+        result = true;
+    }
+    return result;
+}
+// 调用msgModal模态框,$msg参数显示的内容
+// 无返回值
+function msgModal_show($msg){
+    $('#msgModal .modal-body').html($msg);
+    $('#msgModal').modal('show');
+}
+//功能子菜单smenu
+function show_smenu(){
+    $('#smenu').toggleClass("show");
+    $('#smenu').css({"top":"auto","min-width":"auto",});
+}
+//点击其他区域关闭smenu功能子菜单
+$(document).click(function(e) {
+    $('#smenu').removeClass("show");
+});
+</script>
+{%- block jscode -%}
+{%- endblock -%}
+</body>
+</html>

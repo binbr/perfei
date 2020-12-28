@@ -1,0 +1,204 @@
+{#<!--
+    内容模板文件 tally.html
+    继承主模板自 _base.html
+-->#}
+{% extends "_base.html" %}
+
+{% block content %}
+<!-- 项目列表导航-->
+<ul class="nav nav-tabs nav-justified mb-2">
+    <li class="nav-item">
+        {%- if not request.args.get('item_id') -%}
+        <a class="nav-link active">首页</a>
+        {%- else -%}
+        <a class="nav-link" href="/">首页</a>
+        {%- endif -%}
+    </li>
+    {%- for a in get('item') -%}
+    <li class="nav-item">
+        {%- if request.args.get('item_id')=='%d' % (a[0]) -%}
+        <a class="nav-link active">{{a[1]}}</a>
+        {%- else -%}
+        <a class="nav-link" href="?item_id={{a[0]}}">{{a[1]}}</a>
+        {%- endif -%}
+    </li>
+    {%- endfor -%}
+</ul>
+<form name="mform">
+<input type="hidden" name="item_id" value="{{ request.args.get('item_id') }}"/>
+{%- if request.args.get('item_id') in ['1','2'] -%}
+<!-- 项目1,2（按项目项目分类） HTML代码块 -->
+    <div class="card mb-2">
+        <div class="card-body">
+            <table>
+                <tr>
+                    <td class="w-40">
+                        <label>项目类别:</label>
+                    </td>
+                    <td class="w-60">
+                        <select class="form-control w-90" name="catg_id">
+                            {%- for a in res if a[1]!=0 -%}
+                            <option value="{{a[0]}}">{{a[2]}}</option>
+                            {%- endfor -%}
+                        </select>            
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label>资金账户:</label>
+                    </td>
+                    <td>
+                        <select class="form-control w-75" name="acct_id">
+                            {%- for a in get('acct') -%}
+                            <option value="{{a[0]}}">{{a[1]}}</option>
+                            {%- endfor -%}
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        金额：
+                    </td>
+                    <td>
+                        <input type="number" class="form-control" name="amount" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        摘要：
+                    </td>
+                    <td>
+                        <input type="text" class="form-control" name="note" />
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+{%- elif not request.args.get('item_id') -%}
+<!-- 首页（快捷记账） HTML代码块 -->
+    {%- for a in get('item') if a[2] == 1 -%}
+    <div class="card mb-2">
+        <div class="card-header">{{a[1]}}</div>
+        <div class="card-body">
+            {%- for b in res if b[6]==a[0] -%}
+            <label class="input-group mb-2">
+                <div class="input-group-prepend">
+                    <span class="input-group-text">{{ b[2] }}</span>
+                </div>
+                <input type="number" class="form-control" name="amount:{{ b[0] }}" />
+            </label>
+            <input type="hidden" class="form-control" name="acct_id{{ b[0] }}" value="{{b[5]}}" />
+            {%- endfor -%}
+        </div> 
+    </div>
+    {%- endfor -%}
+
+{%- elif request.args.get('item_id') == '3' -%}
+<!-- 项目3（按项目项目分类） HTML代码块 -->
+    {%- for a in res if a[1] == 0 -%}
+    <div class="card mb-2">
+        <div class="card-header">{{a[2]}}</div>
+        <div class="card-body">
+            {%- for b in res if b[1]==a[0] -%}
+            <label class="input-group mb-2">
+                <div class="input-group-prepend">
+                    <span class="input-group-text">{{ b[2] }}</span>
+                </div>
+                <input type="number" class="form-control" name="amount:{{ b[0] }}" />
+            </label>
+            {%- endfor -%}
+        </div> 
+    </div>
+    {%- endfor -%}
+{%- endif -%}
+<label class="input-group mb-2">
+    <div class="input-group-prepend">
+        <span class="input-group-text">日期</span>
+    </div>
+    <input type="datetime-local" class="form-control" name="nowdate" value="{{ get('now') }}">
+</label>
+<button type="button" class="btn btn-primary btn-lg btn-block mb-2" onclick="this.disabled=true;mform_submit(this);">提交数据</button>
+</form>
+
+{%- if request.args.get('item_id') in ['1','2'] -%}
+<table class="table table-hover">
+    {%- for l in tly|groupby(0)|sort(reverse=true, attribute=0) -%}
+    <thead class="thead-light h6 sticky-top">
+		<tr>
+			<th colspan="2">今天</th>
+			<th colspan="3" class="text-right">小结：{{l.list|sum(3)}}</th>
+		</tr>
+	</thead>
+	<tbody >
+        {% for a in l.list %}
+        <tr>
+			<td>{{l.grouper if loop.first}}</td>
+			<td colspan="2">
+                <div class="font-weight-bold">{{a[2]}}</div>
+                <div class="text-secondary small">{{a[1]}}{{' · '+a[4] if a[4]}}{{' · '+a[5] if a[5]}}</div>
+            </td>
+			<td class="text-right {{'text-success' if request.args.get('item_id')=='2' else 'text-danger'}} lead">{{a[3]}}</td>
+            <td style="display: none;">修改|删除</td>
+        </tr>
+        {%- endfor -%}
+    </tbody>
+    {%- else -%}<tr><td class="text-muted text-center"><span>今天还没有记账</span></td></tr>
+    {%- endfor -%}
+</table>
+
+{%- endif -%}
+{% endblock %}
+
+{% block jscode %}
+<!-- 子页面js代码 -->
+<script type="text/javascript">
+function mform_submit(obj) {
+    // 延迟3秒后移除按钮的禁用标签
+    setTimeout(function () {
+        obj.disabled = false;
+    },3000);
+    // 获取sform表单内容
+    data = $('form[name="mform"]').serializeArray();
+    // 遍历表单，验证表单内容，移除无效的表单数据
+    for (i = 0; i < data.length; i++) {
+        // 验证表单内容
+        if (data[i].name.includes('amount')) {
+            if (Number(data[i].value) < 0) {
+                msgModal_show('金额应该大于0。');
+                return false;
+            };
+            if (Number(data[i].value) > 99999.99) {
+                msgModal_show('金额限制10万以内。');
+                return false;
+            };
+            // 如果表单值不为数字或者等于0，则设置其值为''
+            if (!Number(data[i].value) || Number(data[i].value) == 0) {
+                data[i].value = '';
+            }
+            // 如果表单值为空，移除此条数据
+            if (data[i].value == '') {
+                data.splice(i, 1);
+                i--;
+            }
+        }
+    }
+    // ajax 提交表单 不使用回调函数
+    ajax_result(data);
+}
+// 判断input输入框，纠正错误输入
+$(':input[type="number"]').on('keyup blur change', function(){
+    var val = this.value;
+    // 验证是否为正负两位小数，不符合则自动纠正输入
+    if ( !(/^[-+]?(\d+)(\.\d{1,2})?$/g).test(val) ) {
+        // 删除非(数字+-.);
+        val = val.replace(/[^\d\.+-]/g, '');
+        // 纠正错误的数字格式
+        val = val.replace(/.*?([+-]?)(\d+)?(\.\d{0,2})?.*/, function(a, b, c, d) {
+            return b + ( c || ( d && '0' ) || '' ) + ( d || '' );
+        });
+        this.value = val;
+    };
+});
+</script>
+{% endblock %}
